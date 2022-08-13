@@ -38,11 +38,21 @@ else
 	exit 255
 fi
 
-COMMAND="${*}"
 
-echo "${COMMAND}" \| sshpass -p "${PASSWORD}" ssh "${SSH_OPTIONS}" "${USER}@${SERVER}"
-#echo "${COMMAND}" | sshpass -p "${PASSWORD}" ssh "${SSH_OPTIONS}" "${USER}@${SERVER}"
+echo "SERVER     | $SERVER"
+echo "USER       | $USER"
+echo "PASSWORD   | $PASSWORD"
+echo "SSH_OPTIONS| $SSH_OPTIONS"
 
+if [ $# -gt 0 ]
+then
+	COMMAND="${*}"
+	echo "${COMMAND}" \| sshpass -p "${PASSWORD}" ssh ${SSH_OPTIONS} "${USER}@${SERVER}"
+	echo "${COMMAND}" | sshpass -p "${PASSWORD}" ssh ${SSH_OPTIONS} "${USER}@${SERVER}"
+else
+	echo sshpass -p "${PASSWORD}" ssh ${SSH_OPTIONS} "${USER}@${SERVER}"
+	sshpass -p "${PASSWORD}" ssh ${SSH_OPTIONS} "${USER}@${SERVER}"
+fi
 
 
 
