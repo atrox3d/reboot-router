@@ -12,14 +12,17 @@ function get_key()
 	local _key_name="$1"
 	local _file_name="$2"
 	local _delim="${3:-=}"
-	# echo "\$(grep -i "^${_key_name}=" "${_file_name}" | cut -d "${_delim}" -f2)"
+	# echo "\$(grep -i "^${_key_name}=" "${_file_name}" | cut -d "${_delim}" -f2-)"
 	if _line="$(grep -i "^${_key_name}=" "${_file_name}")"
 	then
-		local _value="$(echo "${_line}" | cut -d "${_delim}" -f2)"
+		local _value="$(echo "${_line}" | cut -d "${_delim}" -f2-)"
 		echo "$_value"
 	else
-		echo "FATAL | getkey | key: '${_key_name}' not found in '${_file_name}' "
-		exit 255
+		if [ "${3^^}" != OPTIONAL -o "${4^^}" != OPTIONAL ]
+		then
+			echo "FATAL | getkey | key: '${_key_name}' not found in '${_file_name}' "
+			exit 255
+		fi
 	fi
 }
 
@@ -29,13 +32,17 @@ then
 	SERVER="$(get_key server "${CONFIG_FILE}")"
 	USER="$(get_key user "${CONFIG_FILE}")"
 	PASSWORD="$(get_key password "${CONFIG_FILE}")"
+	SSH_OPTIONS="$(get_key ssh-options "${CONFIG_FILE}" = OPTIONAL)"
 else
-	echo "WARN | file not found: ${CONFIG_FILE}"
-	PASSWORD="password is unknown"
+	echo "FATAL | file not found: ${CONFIG_FILE}"
+	exit 255
 fi
 
 COMMAND="${*}"
 
-echo "echo ${COMMAND} | sshpass -p ${PASSWORD} ssh -oKexAlgorithms=+diffie-hellman-group1-sha1 ${USER}@${SERVER}"
-# ssh -oKexAlgorithms=+diffie-hellman-group1-sha1 "${USER}@${SERVER}"
+echo "${COMMAND}" \| sshpass -p "${PASSWORD}" ssh "${SSH_OPTIONS}" "${USER}@${SERVER}"
+#echo "${COMMAND}" | sshpass -p "${PASSWORD}" ssh "${SSH_OPTIONS}" "${USER}@${SERVER}"
+
+
+
 
