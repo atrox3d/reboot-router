@@ -88,6 +88,7 @@ fi
 		echo "${COMMAND}" | sshpass -p "${PASSWORD}" ssh ${SSH_OPTIONS} "${USER}@${SERVER}"
 	else
 		info "RUN | " sshpass -p "${PASSWORD}" ssh ${SSH_OPTIONS} "${USER}@${SERVER}"
+		sshpass -p "${PASSWORD}" ssh ${SSH_OPTIONS} "${USER}@${SERVER}"
 	fi
 } |& tee >(sed s/${PASSWORD}/*******/ >> "${LOG_FILE}") 
 
