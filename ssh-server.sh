@@ -5,7 +5,6 @@ HERE="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"	# get current path
 HERE="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"	# get current path
 NAME="$(basename ${BASH_SOURCE[0]})"							# save this script name
 #########################################################################################
-CONFIG_FILE=${HERE}/private/config
 
 function get_key()
 {
@@ -31,15 +30,44 @@ function get_key()
 	fi
 }
 
+CONFIG_PATH=${HERE}/private
+CONFIG_FILE=config
+unset LOG_FILE
+while getopts "c:p:l:" OPT
+do
+	case "$OPT" in
+		c)
+			CONFIG_FILE="${OPTARG}"
+			info CONFIG_FILE "${CONFIG_FILE}"
+		;;
+		p)
+			CONFIG_PATH="${OPTARG}"
+			info CONFIG_PATH "${CONFIG_PATH}"
+		;;
+		l)
+			LOG_FILE="${OPTARG}"
+			info LOG_FILE "${LOG_FILE}"
+		;;
+	esac
+done
+shift "$((OPTIND-1))"
 
-if [ -f "${CONFIG_FILE}" ]
+if [ "${LOG_FILE:-nologfile}" != nologfile ]
 then
-	SERVER="$(get_key server "${CONFIG_FILE}")"
-	USER="$(get_key user "${CONFIG_FILE}")"
-	PASSWORD="$(get_key password "${CONFIG_FILE}")"
-	SSH_OPTIONS="$(get_key ssh-options "${CONFIG_FILE}" = OPTIONAL)"
+	LOG_FILE="${HERE}/$(basename "${LOG_FILE}")"
+	info LOG_FILE "${LOG_FILE}"
+fi
+
+CONFIG_FILE_PATH="${CONFIG_PATH}/${CONFIG_FILE}"
+info CONFIG_FILE_PATH "${CONFIG_FILE_PATH}"
+if [ -f "${CONFIG_FILE_PATH}" ]
+then
+	SERVER="$(get_key server "${CONFIG_FILE_PATH}")"
+	USER="$(get_key user "${CONFIG_FILE_PATH}")"
+	PASSWORD="$(get_key password "${CONFIG_FILE_PATH}")"
+	SSH_OPTIONS="$(get_key ssh-options "${CONFIG_FILE_PATH}" = OPTIONAL)"
 else
-	echo "FATAL | file not found: ${CONFIG_FILE}"
+	echo "FATAL | file not found: ${CONFIG_FILE_PATH}"
 	exit 255
 fi
 
