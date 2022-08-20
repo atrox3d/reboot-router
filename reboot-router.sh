@@ -5,6 +5,14 @@ HERE="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"	# get current path
 HERE="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"	# get current path
 NAME="$(basename ${BASH_SOURCE[0]})"							# save this script name
 #########################################################################################
+
 LOG_FILE="$(basename ${0} .sh).log"
-info "RUN | " "${HERE}"/ssh-server.sh -f "${LOG_FILE}" reboot now | tee -a  "${LOG_FILE}" 
+info "RUN | " "${HERE}"/ssh-server.sh -f "${LOG_FILE}" reboot now |& tee -a  "${LOG_FILE}" |& tee -a "${LOG_FILE}.summary"
 "${HERE}"/ssh-server.sh -l "${LOG_FILE}" reboot now
+
+if [ $? -eq 0 ]
+then
+	info "STATUS | SUCCESS" |& tee -a "${LOG_FILE}.summary"
+else
+	info "STATUS | ERROR" |& tee -a "${LOG_FILE}.summary"
+fi
