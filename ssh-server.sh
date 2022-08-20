@@ -56,10 +56,14 @@ if [ "${LOG_FILE:-nologfile}" != nologfile ]
 then
 	LOG_FILE="${HERE}/$(basename "${LOG_FILE}")"
 	info LOG_FILE "${LOG_FILE}"
+	LOG_TO_FILE=true
+else
+	LOG_FILE=/dev/null
+	LOG_TO_FILE=false
 fi
 
 CONFIG_FILE_PATH="${CONFIG_PATH}/${CONFIG_FILE}"
-info CONFIG_FILE_PATH "${CONFIG_FILE_PATH}"
+info CONFIG_FILE_PATH "${CONFIG_FILE_PATH}" | tee -a "${LOG_FILE}"
 if [ -f "${CONFIG_FILE_PATH}" ]
 then
 	SERVER="$(get_key server "${CONFIG_FILE_PATH}")"
@@ -71,23 +75,19 @@ else
 	exit 255
 fi
 
+{
+	info "SERVER      | ${SERVER}"
+	info "USER        | ${USER}"
+	info "PASSWORD    | ${PASSWORD}"
+	info "SSH_OPTIONS | ${SSH_OPTIONS}"
 
-info "SERVER      | ${SERVER}"
-info "USER        | ${USER}"
-info "PASSWORD    | ${PASSWORD}" |& sed s/"${PASSWORD}"/********/
-info "SSH_OPTIONS | ${SSH_OPTIONS}"
-
-if [ $# -gt 0 ]
-then
-	COMMAND="${*}"
-	info "RUN | " "${COMMAND}" \| sshpass -p "${PASSWORD}" ssh ${SSH_OPTIONS} "${USER}@${SERVER}"\
-	|& sed s/"${PASSWORD}"/********/
-	# echo "${COMMAND}" | sshpass -p "${PASSWORD}" ssh ${SSH_OPTIONS} "${USER}@${SERVER}"
-else
-	info "RUN | " sshpass -p "${PASSWORD}" ssh ${SSH_OPTIONS} "${USER}@${SERVER}"\
-	|& sed s/"${PASSWORD}"/********/
-	# sshpass -p "${PASSWORD}" ssh ${SSH_OPTIONS} "${USER}@${SERVER}"
-fi
-
+	if [ $# -gt 0 ]
+	then
+		COMMAND="${*}"
+		info "RUN | " "${COMMAND}" \| sshpass -p "${PASSWORD}" ssh ${SSH_OPTIONS} "${USER}@${SERVER}"
+	else
+		info "RUN | " sshpass -p "${PASSWORD}" ssh ${SSH_OPTIONS} "${USER}@${SERVER}"
+	fi
+} |& tee >(sed s/${PASSWORD}/*******/ >> "${LOG_FILE}") 
 
 
