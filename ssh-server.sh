@@ -10,8 +10,8 @@ CONFIG_FILE=${HERE}/private/config
 function get_key()
 {
 	[ $# -ge 2 ] || {
-		echo "FATAL | syntax   | getkey key_name file_name [delimiter]"
-		echo "FATAL | received | getkey ${@}"
+		fatal "syntax | getkey key_name file_name [delimiter]"
+		fatal "syntax | received | getkey ${@}"
 		exit 255
 	}
 	local _key_name="$1"
@@ -25,7 +25,7 @@ function get_key()
 	else
 		if [ "${3^^}" != OPTIONAL -o "${4^^}" != OPTIONAL ]
 		then
-			echo "FATAL | getkey | key: '${_key_name}' not found in '${_file_name}' "
+			fatal "getkey | key: '${_key_name}' not found in '${_file_name}' "
 			exit 255
 		fi
 	fi
