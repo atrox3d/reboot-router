@@ -46,16 +46,18 @@ fi
 
 info "SERVER      | ${SERVER}"
 info "USER        | ${USER}"
-info "PASSWORD    | ${PASSWORD}"
+info "PASSWORD    | ${PASSWORD}" |& sed s/"${PASSWORD}"/********/
 info "SSH_OPTIONS | ${SSH_OPTIONS}"
 
 if [ $# -gt 0 ]
 then
 	COMMAND="${*}"
-	info "RUN | " "${COMMAND}" \| sshpass -p "${PASSWORD}" ssh ${SSH_OPTIONS} "${USER}@${SERVER}"
+	info "RUN | " "${COMMAND}" \| sshpass -p "${PASSWORD}" ssh ${SSH_OPTIONS} "${USER}@${SERVER}"\
+	|& sed s/"${PASSWORD}"/********/
 	# echo "${COMMAND}" | sshpass -p "${PASSWORD}" ssh ${SSH_OPTIONS} "${USER}@${SERVER}"
 else
-	info "RUN | " sshpass -p "${PASSWORD}" ssh ${SSH_OPTIONS} "${USER}@${SERVER}"
+	info "RUN | " sshpass -p "${PASSWORD}" ssh ${SSH_OPTIONS} "${USER}@${SERVER}"\
+	|& sed s/"${PASSWORD}"/********/
 	# sshpass -p "${PASSWORD}" ssh ${SSH_OPTIONS} "${USER}@${SERVER}"
 fi
 
