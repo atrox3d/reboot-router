@@ -7,7 +7,7 @@ NAME="$(basename ${BASH_SOURCE[0]})"							# save this script name
 #########################################################################################
 
 LOG_FILE="$(basename ${0} .sh).log"
-info "RUN | " "${HERE}"/ssh-server.sh -f "${LOG_FILE}" reboot now |& tee -a  "${LOG_FILE}" |& tee -a "${LOG_FILE}.summary"
+info "RUN | " "${HERE}"/ssh-server.sh -l "${LOG_FILE}" reboot now |& tee -a  "${HERE}/${LOG_FILE}" |& tee -a "${HERE}/${LOG_FILE}.summary"
 "${HERE}"/ssh-server.sh -l "${LOG_FILE}" reboot now
 
 if [ $? -eq 0 ]
